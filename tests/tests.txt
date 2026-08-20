@@ -1,0 +1,66 @@
+# Tests
+
+## Test 1 - Cashier completes a cash POS sale and stock updates [sanity]
+Viewport: desktop
+Covers: authentication, POS cart workflow, sale creation, stock deduction, invoice/receipt generation, sales history persistence
+Description: Verifies the core revenue workflow - a sale actually decrements inventory and is recorded, not just simulated in the UI.
+
+Steps:
+1. Sign in with username "peter" and PIN "1234"
+2. Go to Point of Sale and note the stock count shown on the "Tecno Spark 20" product card
+3. Tap the "Tecno Spark 20" product card once to add it to the cart, choose Cash as the payment method, enter an Amount Tendered of 20000, and tap Complete Sale
+4. In the receipt modal, confirm the invoice number and total are shown, then close it
+5. Go to Products & Inventory and find "Tecno Spark 20"
+6. Go to Sales & Invoices
+
+Expected: The stock count for "Tecno Spark 20" in Products & Inventory is exactly one less than the value noted in step 2, and Sales & Invoices shows a new invoice at the top with payment method "Cash" and status "Completed".
+
+## Test 2 - Add a new product and edit it, changes persist after reload
+Viewport: desktop
+Covers: product CRUD create/update, category assignment, database persistence after reload
+Description: Verifies product management is a real, durable workflow rather than a mock form.
+
+Steps:
+1. Sign in with username "admin" and PIN "1234"
+2. Go to Products & Inventory and click "Add Product"
+3. Fill in Product Name "Test Bluetooth Speaker", SKU "SKU-TEST-001", Selling Price 3500, Current Stock 10, then click "Add Product" to save
+4. Search for "Test Bluetooth Speaker" in the product list, click the edit (pencil) icon, change the Selling Price to 3999, and save
+5. Refresh the page and search for "Test Bluetooth Speaker" again
+
+Expected: "Test Bluetooth Speaker" is visible in the product list with a selling price of KES 3,999 after the refresh.
+
+## Test 3 - Sales attendant cannot access Staff management (role permission boundary)
+Viewport: desktop
+Covers: role-based access control, permission-based navigation, backend authorization enforcement
+Description: Verifies that a Sales Attendant role does not have access to sensitive staff management, matching the required RBAC behavior.
+
+Steps:
+1. Sign in with username "peter" and PIN "1234"
+2. Inspect the left sidebar navigation menu
+
+Expected: The sidebar does not show a "Staff & Commissions" link for the Sales Attendant role (it is only visible to roles with staff management permission such as Owner or Manager).
+
+## Test 4 - M-Pesa STK Push payment completes a sale
+Viewport: desktop
+Covers: M-Pesa STK push initiation, pending-to-successful payment polling, backend-verified payment confirmation, sale finalization
+Description: Verifies the M-Pesa payment flow is backend-driven - the sale only finalizes after the transaction is confirmed as successful, not immediately on button click.
+
+Steps:
+1. Sign in with username "jane" and PIN "1234"
+2. Go to Point of Sale, add "Wireless Earbuds Pro" to the cart
+3. Select M-Pesa as the payment method, enter phone number "0711222333", and tap Complete Sale
+4. Wait on the "Waiting for customer to enter M-Pesa PIN" screen until it automatically resolves (up to 10 seconds)
+
+Expected: A receipt modal appears showing payment method "MPESA" and the sale total, confirming the payment was verified and the sale completed automatically without further user action.
+
+## Test 5 - Mobile: sign in and log a new repair job
+Viewport: mobile
+Covers: mobile responsiveness, mobile navigation menu, repair job creation, job card number generation
+Description: Verifies the app is usable on a mobile viewport for a non-POS workflow (repair intake), including the collapsible mobile sidebar.
+
+Steps:
+1. Sign in with username "kevin" and PIN "1234"
+2. Open the mobile menu and navigate to "Repairs & Warranties"
+3. Tap "Log Repair", fill in Customer Name "Mobile Test Customer", Customer Phone "0799888777", leave Device Type as "Smartphone", and tap "Log Repair" to save
+
+Expected: A new repair job card appears in the Repair Jobs list showing customer name "Mobile Test Customer" with status "Received".
