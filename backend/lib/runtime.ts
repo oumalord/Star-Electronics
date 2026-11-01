@@ -43,15 +43,18 @@ export function router(routes: RouteMap) {
 
     const [, ...pathParts] = route[0].split(' ');
     const params = matchPath(pathParts.join(' '), url.pathname) || {};
-    const bodyText = await new Promise<string>((resolve, reject) => {
-      let value = '';
-      request.on('data', (chunk) => { value += chunk; });
-      request.on('end', () => resolve(value));
-      request.on('error', reject);
-    });
-    let body: unknown = {};
-    if (bodyText) {
-      try { body = JSON.parse(bodyText); } catch { return error('Request body must be valid JSON.', 400); }
+    const parsedRequest = request as IncomingMessage & { body?: unknown };
+    let body: unknown = parsedRequest.body ?? {};
+    if (parsedRequest.body === undefined && !request.readableEnded) {
+      const bodyText = await new Promise<string>((resolve, reject) => {
+        let value = '';
+        request.on('data', (chunk) => { value += chunk; });
+        request.on('end', () => resolve(value));
+        request.on('error', reject);
+      });
+      if (bodyText) {
+        try { body = JSON.parse(bodyText); } catch { return error('Request body must be valid JSON.', 400); }
+      }
     }
     const query = Object.fromEntries(url.searchParams.entries());
     const context = { body, query, params };
