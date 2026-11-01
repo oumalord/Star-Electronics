@@ -45,7 +45,9 @@ export function router(routes: RouteMap) {
     const params = matchPath(pathParts.join(' '), url.pathname) || {};
     const parsedRequest = request as IncomingMessage & { body?: unknown };
     let body: unknown = parsedRequest.body ?? {};
-    if (parsedRequest.body === undefined && !request.readableEnded) {
+    const method = request.method?.toUpperCase();
+    const mayHaveBody = method !== 'GET' && method !== 'HEAD';
+    if (parsedRequest.body === undefined && mayHaveBody && !request.readableEnded) {
       const bodyText = await new Promise<string>((resolve, reject) => {
         let value = '';
         request.on('data', (chunk) => { value += chunk; });
