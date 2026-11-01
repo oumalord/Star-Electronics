@@ -68,7 +68,9 @@ export const handler = router({
     await Promise.all([
       db.list('staff', { limit: 1 }),
       db.list('settings', { limit: 1 }),
+      db.list('sessions', { limit: 1 }),
       db.list('meta', { limit: 1 }),
+      db.list('auditLogs', { limit: 1 }),
     ]);
     return json({ message: 'Success', database: 'connected' });
   }],
