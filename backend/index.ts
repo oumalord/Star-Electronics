@@ -67,6 +67,7 @@ export const handler = router({
   'GET /api/_healthcheck': [async () => {
     await Promise.all([
       db.list('staff', { limit: 1 }),
+      db.list('staff', { filter: { username: '__health_probe__' }, limit: 1 }),
       db.list('settings', { limit: 1 }),
       db.list('sessions', { limit: 1 }),
       db.list('meta', { limit: 1 }),

@@ -32,7 +32,14 @@ function requestFailure(cause: unknown): RouteResponse {
     return error('The API database is not configured. Set DATABASE_URL in the deployment environment.', 503);
   }
   console.error('API request failed', cause);
-  return error('The API request failed. Check the database configuration and server logs.', 500);
+  const safeCode = /^[A-Z0-9_]{1,16}$/i.test(code) ? code : undefined;
+  return {
+    status: 500,
+    body: {
+      error: 'The API request failed. Check the database configuration and server logs.',
+      ...(safeCode ? { code: safeCode } : {}),
+    },
+  };
 }
 
 function matchPath(pattern: string, pathname: string): Record<string, string> | null {
