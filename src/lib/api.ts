@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // The frontend calls the standalone Neon-backed API through Vite locally or
 // through the configured API host in production.
-const api = axios.create({ baseURL: '' });
+const api = axios.create({ baseURL: import.meta.env.VITE_BACKEND_URL || '' });
 
 function getToken(): string {
   return localStorage.getItem('star_token') || '';

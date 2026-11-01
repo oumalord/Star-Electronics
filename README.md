@@ -18,16 +18,40 @@ To point at a different backend later, set `VITE_BACKEND_URL`:
 VITE_BACKEND_URL=https://your-backend.example.com npm run dev
 ```
 
+## Deploy to Vercel
+
+The repository includes a Vercel API function at `api/index.ts` and rewrites `/api/*`
+requests to it. Add `DATABASE_URL` as a server-side environment variable in the Vercel
+project settings, then redeploy. Without it, the API cannot connect to Neon and login
+will fail. Do not set the database connection string as a `VITE_*` variable.
+
+The app uses same-origin `/api/...` requests on Vercel, so `VITE_BACKEND_URL` is not
+needed for this deployment.
+
 ## Connect Neon PostgreSQL
 
 The backend stores its records in Neon through `backend/lib/neon.ts`. Create a Neon
 project, copy its pooled connection string into `DATABASE_URL`, and run
 `backend/schema.sql` in the Neon SQL Editor. Set `DATABASE_URL` as a server-side
 secret on the backend deployment; never expose it in the Vite frontend or commit a
-real `.env` file. Set `VITE_BACKEND_URL` to the URL of the deployed backend API.
+real `.env` file. Set `VITE_BACKEND_URL` only when the API is hosted on a different
+origin from the frontend.
+
+## Create a client demo database
+
+Point `DATABASE_URL` in `.env` at a new, empty demo database, then run
+`npm run seed:demo`. This creates the schema and fills it with synthetic sales,
+inventory, customers, repairs, warranties, expenses, and reports. The command refuses
+to seed a database that already contains records. All sample records are marked as
+demo data; no real records are copied and no M-Pesa payment is sent.
+
+Demo owner login: `admin` / `2114`. Sample staff logins are printed after seeding.
+After seeding, set the same destination `DATABASE_URL` in the production backend
+environment and redeploy to make the hosted app use this demo database.
 
 For local execution, copy `.env.example` to `.env` and provide the Neon connection
-string. `backend/server.ts` is the Node HTTP runtime for the API.
+string. `backend/server.ts` is the Node HTTP runtime for the API. When deploying the
+frontend and API separately, set `VITE_BACKEND_URL` to the backend origin at build time.
 
 `npm run build` produces a static `dist/` you can host anywhere (Vercel, Netlify, S3,
 etc.) — just make sure whatever serves it also proxies/rewrites `/api/*` to a real

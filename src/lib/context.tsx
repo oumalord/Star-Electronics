@@ -52,8 +52,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setStaff(res.data.staff);
       return { ok: true };
     } catch (e: any) {
-      if (e?.response?.status === 403 || e?.response?.status >= 500 || !e?.response) {
-        return { ok: false, message: 'The backend API is not deployed at this address. Deploy backend/index.ts or set VITE_BACKEND_URL to the live API URL.' };
+      if (!e?.response) return { ok: false, message: 'Could not reach the API. Check your connection and try again.' };
+      if (e.response.status >= 500) {
+        return { ok: false, message: e.response.data?.error || 'The API server encountered an error. Check its deployment configuration and logs.' };
       }
       return { ok: false, message: e?.response?.data?.error || 'Invalid username or PIN.' };
     }

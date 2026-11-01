@@ -8,7 +8,8 @@
     "dev:api": "tsx backend/server.ts",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "seed:demo": "tsx scripts/seed-demo.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
