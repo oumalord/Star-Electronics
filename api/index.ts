@@ -1,4 +1,4 @@
-import { handler } from '../backend/index';
+import { handler } from '../backend/index.ts';
 
 export default async function api(request: any, response: any): Promise<void> {
   try {

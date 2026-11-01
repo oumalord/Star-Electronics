@@ -1,6 +1,6 @@
-import { db } from './neon';
-import { newSalt, hashPin, getSettings } from './helpers';
-import type { Staff } from './types';
+import { db } from './neon.ts';
+import { newSalt, hashPin, getSettings } from './helpers.ts';
+import type { Staff } from './types.ts';
 
 const OWNER_USERNAME = 'admin';
 const OWNER_PIN = '2114';

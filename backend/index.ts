@@ -1,10 +1,10 @@
-import { router, json, error } from './lib/runtime';
-import type { RouterContext } from './lib/runtime';
-import { db } from './lib/neon';
-import { genToken, hashPin, newSalt, getStaffByToken, extractToken, can, sanitizeStaff, getSettings, nextInvoiceNumber, nextJobCardNumber, logAudit, notify } from './lib/helpers';
-import { initiateStkPush, resolveIfDue } from './lib/mpesa';
-import { ensureSeeded, ensureOwnerAccount, purgeDemoDataOnce } from './lib/seed';
-import type { Staff, Product, Sale, SaleItem, Customer, Supplier, DeviceUnit, MpesaTransaction, Repair, Warranty, CashRegister } from './lib/types';
+import { router, json, error } from './lib/runtime.ts';
+import type { RouterContext } from './lib/runtime.ts';
+import { db } from './lib/neon.ts';
+import { genToken, hashPin, newSalt, getStaffByToken, extractToken, can, sanitizeStaff, getSettings, nextInvoiceNumber, nextJobCardNumber, logAudit, notify } from './lib/helpers.ts';
+import { initiateStkPush, resolveIfDue } from './lib/mpesa.ts';
+import { ensureSeeded, ensureOwnerAccount, purgeDemoDataOnce } from './lib/seed.ts';
+import type { Staff, Product, Sale, SaleItem, Customer, Supplier, DeviceUnit, MpesaTransaction, Repair, Warranty, CashRegister } from './lib/types.ts';
 
 async function authGuard(ctx: RouterContext, allowed: string[] | null): Promise<{ staff: Staff | null; resp: ReturnType<typeof error> | null }> {
   const token = extractToken(ctx);

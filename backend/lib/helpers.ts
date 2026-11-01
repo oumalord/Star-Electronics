@@ -1,6 +1,6 @@
-import { db } from './neon';
+import { db } from './neon.ts';
 import crypto from 'node:crypto';
-import type { Staff, Session, Settings } from './types';
+import type { Staff, Session, Settings } from './types.ts';
 
 export function genToken(): string {
   return crypto.randomBytes(24).toString('hex');

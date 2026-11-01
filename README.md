@@ -21,9 +21,10 @@ VITE_BACKEND_URL=https://your-backend.example.com npm run dev
 ## Deploy to Vercel
 
 The repository includes a Vercel API function at `api/index.ts` and rewrites `/api/*`
-requests to it. Add `DATABASE_URL` as a server-side environment variable in the Vercel
-project settings, then redeploy. Without it, the API cannot connect to Neon and login
-will fail. Do not set the database connection string as a `VITE_*` variable.
+requests to it. Its backend TypeScript dependencies are included in the function
+bundle. Add `DATABASE_URL` as a server-side environment variable in the Vercel project
+settings, then redeploy. Without it, the API cannot connect to Neon and login will
+fail. Do not set the database connection string as a `VITE_*` variable.
 
 The app uses same-origin `/api/...` requests on Vercel, so `VITE_BACKEND_URL` is not
 needed for this deployment.

@@ -1,7 +1,7 @@
-import { secrets } from './secrets';
-import { db } from './neon';
+import { secrets } from './secrets.ts';
+import { db } from './neon.ts';
 import crypto from 'node:crypto';
-import type { MpesaTransaction } from './types';
+import type { MpesaTransaction } from './types.ts';
 
 async function hasRealCredentials(): Promise<boolean> {
   try {

@@ -14,7 +14,7 @@ function loadEnv(): void {
 }
 
 loadEnv();
-const { handler } = await import('./index');
+const { handler } = await import('./index.ts');
 const port = Number(process.env.API_PORT || 8788);
 
 const server = createServer(async (request, response) => {
