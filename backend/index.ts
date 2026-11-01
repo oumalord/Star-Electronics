@@ -3,7 +3,7 @@ import type { RouterContext } from './lib/runtime.ts';
 import { db } from './lib/neon.ts';
 import { genToken, hashPin, newSalt, getStaffByToken, extractToken, can, sanitizeStaff, getSettings, nextInvoiceNumber, nextJobCardNumber, logAudit, notify } from './lib/helpers.ts';
 import { initiateStkPush, resolveIfDue } from './lib/mpesa.ts';
-import { ensureSeeded, ensureOwnerAccount, purgeDemoDataOnce } from './lib/seed.ts';
+import { ensureSeeded, ensureOwnerAccount } from './lib/seed.ts';
 import type { Staff, Product, Sale, SaleItem, Customer, Supplier, DeviceUnit, MpesaTransaction, Repair, Warranty, CashRegister } from './lib/types.ts';
 
 async function authGuard(ctx: RouterContext, allowed: string[] | null): Promise<{ staff: Staff | null; resp: ReturnType<typeof error> | null }> {
@@ -81,11 +81,6 @@ export const handler = router({
       await ensureOwnerAccount();
     } catch (e) {
       console.error('ensureOwnerAccount failed', e);
-    }
-    try {
-      await purgeDemoDataOnce();
-    } catch (e) {
-      console.error('purgeDemoDataOnce failed', e);
     }
     const b = ctx.body as { username?: string; pin?: string };
     if (!b.username || !b.pin) return error('Username and PIN are required.', 400);
