@@ -33,11 +33,15 @@ function requestFailure(cause: unknown): RouteResponse {
   }
   console.error('API request failed', cause);
   const safeCode = /^[A-Z0-9_]{1,16}$/i.test(code) ? code : undefined;
+  const failureType = cause instanceof Error && /^[A-Z][A-Za-z0-9]{0,40}$/.test(cause.name)
+    ? cause.name
+    : undefined;
   return {
     status: 500,
     body: {
       error: 'The API request failed. Check the database configuration and server logs.',
       ...(safeCode ? { code: safeCode } : {}),
+      ...(failureType ? { failureType } : {}),
     },
   };
 }
