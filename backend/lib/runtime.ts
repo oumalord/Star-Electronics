@@ -20,6 +20,21 @@ export function error(message: string, status = 400): RouteResponse {
   return { status, body: { error: message } };
 }
 
+function requestFailure(cause: unknown): RouteResponse {
+  const message = cause instanceof Error ? cause.message : '';
+  const code = cause && typeof cause === 'object' && 'code' in cause
+    ? String((cause as { code: unknown }).code)
+    : '';
+  if (code === '42P01' || /relation .+ does not exist/i.test(message)) {
+    return error('The database schema is missing. Run backend/schema.sql against the configured database.', 503);
+  }
+  if (message.includes('DATABASE_URL')) {
+    return error('The API database is not configured. Set DATABASE_URL in the deployment environment.', 503);
+  }
+  console.error('API request failed', cause);
+  return error('The API request failed. Check the database configuration and server logs.', 500);
+}
+
 function matchPath(pattern: string, pathname: string): Record<string, string> | null {
   const expected = pattern.split('/').filter(Boolean);
   const actual = pathname.split('/').filter(Boolean);
@@ -63,8 +78,7 @@ export function router(routes: RouteMap) {
     try {
       return await route[1][0](context);
     } catch (cause) {
-      console.error('API request failed', cause);
-      return error('Internal server error.', 500);
+      return requestFailure(cause);
     }
   };
 }

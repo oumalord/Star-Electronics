@@ -64,7 +64,10 @@ async function finalizeSale(saleId: string): Promise<void> {
 }
 
 export const handler = router({
-  'GET /api/_healthcheck': [async () => json({ message: 'Success' })],
+  'GET /api/_healthcheck': [async () => {
+    await db.list('meta', { limit: 1 });
+    return json({ message: 'Success', database: 'connected' });
+  }],
 
   'POST /api/auth/bootstrap': [async () => { await ensureSeeded(); return json({ ok: true }); }],
 
