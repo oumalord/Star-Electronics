@@ -13,10 +13,14 @@ type Db = {
   delete: (table: string, ids: string[]) => Promise<void>;
 };
 
-const connectionString = process.env.DATABASE_URL;
-if (!connectionString) throw new Error('DATABASE_URL is required to connect to Neon.');
+let sql: ReturnType<typeof neon> | undefined;
 
-const sql = neon(connectionString);
+function getSql(): ReturnType<typeof neon> {
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) throw new Error('DATABASE_URL is required to connect to Neon.');
+  if (!sql) sql = neon(connectionString);
+  return sql;
+}
 
 const TABLES = new Set([
   'staff', 'sessions', 'settings', 'categories', 'products', 'deviceUnits', 'suppliers', 'purchases',
@@ -41,12 +45,14 @@ export const db: Db = {
   async get<T extends RecordValue>(table: string, ids: string[]) {
     if (ids.length === 0) return [];
     const safeTable = tableName(table);
+    const sql = getSql();
     const rows = await sql.query(`SELECT data FROM "${safeTable}" WHERE id = ANY($1::text[])`, [ids]);
     return rows.map((row: any) => row.data as T);
   },
 
   async list<T extends RecordValue>(table: string, options: ListOptions = {}) {
     const safeTable = tableName(table);
+    const sql = getSql();
     const { clause, values } = filterEntries(options.filter);
     const where: string[] = [];
     const params: unknown[] = [];
@@ -63,6 +69,7 @@ export const db: Db = {
   async add(table, records) {
     const safeTable = tableName(table);
     if (records.length === 0) return [];
+    const sql = getSql();
     const ids = records.map((record) => record.id || crypto.randomUUID());
     await sql.transaction(records.map((record, index) => sql.query(`INSERT INTO "${safeTable}" (id, data) VALUES ($1, $2::jsonb)`, [ids[index], JSON.stringify({ ...record, id: ids[index] })])));
     return ids;
@@ -70,12 +77,14 @@ export const db: Db = {
 
   async update(table, updates) {
     const safeTable = tableName(table);
+    const sql = getSql();
     await sql.transaction(updates.map(({ id, record }) => sql.query(`UPDATE "${safeTable}" SET data = $1::jsonb, updated_at = now() WHERE id = $2`, [JSON.stringify({ ...record, id }), id])));
   },
 
   async delete(table, ids) {
     if (ids.length === 0) return;
     const safeTable = tableName(table);
+    const sql = getSql();
     await sql.query(`DELETE FROM "${safeTable}" WHERE id = ANY($1::text[])`, [ids]);
   },
 };
