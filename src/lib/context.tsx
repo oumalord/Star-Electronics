@@ -30,6 +30,17 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
   accountant: ['sales_view', 'expenses_manage', 'reports_view', 'mpesa_view', 'commissions_view', 'notifications_view'],
 };
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function getErrorMessage(value: unknown): string | undefined {
+  if (typeof value === 'string') return value;
+  if (!isRecord(value)) return undefined;
+  if (typeof value.message === 'string') return value.message;
+  return getErrorMessage(value.error);
+}
+
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -51,12 +62,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setToken(res.data.token);
       setStaff(res.data.staff);
       return { ok: true };
-    } catch (e: any) {
-      if (!e?.response) return { ok: false, message: 'Could not reach the API. Check your connection and try again.' };
-      if (e.response.status >= 500) {
-        return { ok: false, message: e.response.data?.error || 'The API server encountered an error. Check its deployment configuration and logs.' };
+    } catch (cause: unknown) {
+      const response = isRecord(cause) && isRecord(cause.response) ? cause.response : null;
+      if (!response) return { ok: false, message: 'Could not reach the API. Check your connection and try again.' };
+      const apiMessage = getErrorMessage(response.data);
+      if (typeof response.status === 'number' && response.status >= 500) {
+        return { ok: false, message: apiMessage || 'The API server encountered an error. Check its deployment configuration and logs.' };
       }
-      return { ok: false, message: e?.response?.data?.error || 'Invalid username or PIN.' };
+      return { ok: false, message: apiMessage || 'Invalid username or PIN.' };
     }
   }, []);
 

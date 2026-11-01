@@ -21,7 +21,7 @@ export default function Login() {
     const res = await login(username.trim(), pin.trim());
     setLoading(false);
     if (res.ok) navigate('/');
-    else setErrorMsg(res.message || 'Invalid username or PIN.');
+    else setErrorMsg(typeof res.message === 'string' ? res.message : 'Invalid username or PIN.');
   };
 
   return (
